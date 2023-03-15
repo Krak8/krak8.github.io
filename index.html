@@ -26,7 +26,7 @@
       left: 0;
       right: 0;
       background-color: transparent;
-      padding: 30px;
+      padding: 10px;
       z-index: 1;
       display: flex;
       justify-content: center;
@@ -42,9 +42,9 @@
       height: auto;
     }
     .container {
-      max-width: 1200px;
-      margin: 180px auto 100px;
-      padding: 75px;
+      max-width: 95%;
+      margin: 100px auto 50px;
+      padding: 20px;
       background-color: transparent;
       border-radius: 15px;
       box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
@@ -54,17 +54,17 @@
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      margin-top: 75px;
+      margin-top: 30px;
       padding: 0;
     }
     li {
       list-style: none;
-      margin: 20px;
+      margin: 10px;
     }
     a {
       display: flex;
       align-items: center;
-      padding: 30px;
+      padding: 20px;
       color: #fff;
       background-color: transparent;
       border-radius: 7.5px;
@@ -77,16 +77,14 @@
       color: #333;
     }
     .fab {
-      font-size: 36px;
-      margin-right: 15px;
+      margin-right: 10px;
     }
     .text {
-      margin-left: 15px;
-      font-size: 24px;
+      margin-left: 10px;
     }
     footer {
       background-color: rgba(0, 0, 0, 0.7);
-      padding: 30px;
+      padding: 10px;
       color: #fff;
     }
     .background {
@@ -98,48 +96,21 @@
       background-color: rgba(0, 0, 0, 0.5);
       z-index: -1;
     }
-    @media only screen and (max-width: 768px) {
+    @media only screen and (min-width: 768px) {
       .container {
-        padding: 30px;
-        margin-top: 225px;
+        max-width: 768px;
+        margin-top: 150px;
       }
       ul {
-        margin-top: 30px;
+        margin-top: 50px;
       }
-      a {
-        padding: 15px;
-      }
-      .fab {
-        font-size: 30px;
-      }
-      .text {
-        font-size: 18px;
-        margin-left: 10px;
-      }
-      footer {
-        padding: 15px;
-      }
-      .logo img {
-        width: 120px;
-      }
-      }
+    }
+    .show {
+      transform: translateX(0);
+    }
+    @media only screen and (min-width: 768px) {
       .menu {
         display: none;
-        position: fixed;
-        top: 90px;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: rgba(0, 0, 0, 0.9);
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 1;
-        transform: translateX(-100%);
-        transition: all 0.3s ease;
-      }
-      .show {
-        transform: translateX(0);
       }
     }
   </style>
@@ -150,8 +121,8 @@
   </header>
   <div class="background"></div>
   <div class="container">
-    <h1 style="color:white;font-size:48px;">Welcome to Krak8's Socials!</h1>
-    <p style="color:white;font-size:36px;">Stay up-to-date with our latest content by following us on:</p>
+    <h1 style="color:white;">Welcome to Krak8's Socials!</h1>
+    <p style="color:white;">Stay up-to-date with our latest content by following us on:</p>
     <ul>
       <li><a href="https://www.youtube.com/@Krak8"><i class="fab fa-youtube"></i><span class="text">YouTube</span></a></li>
       <li><a href="https://www.instagram.com/imkrak8"><i class="fab fa-instagram"></i><span class="text">Instagram</span></a></li>
@@ -161,8 +132,8 @@
     </ul>
   </div>
   <footer>
-    <p style="font-size:24px;">&copy; Krak8</p>
+    <p>&copy; Krak8</p>
   </footer>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/js/all.min.js"></script>
 </body>
-</html>
+</html> 
