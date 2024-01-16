@@ -166,12 +166,11 @@ body {
 }
 
 .logo.svelte-1ch4ikh {
-    border-radius: 50%;
+    /* border-radius: 50%; */
     width: 9%;
     min-width: 100px;
     height: auto;
     object-fit: cover;
-    opacity: 0
 }
 
 @keyframes svelte-1ch4ikh-load {
