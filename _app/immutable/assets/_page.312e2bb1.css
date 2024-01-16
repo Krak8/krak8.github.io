@@ -167,6 +167,7 @@ body {
 
 .logo.svelte-1ch4ikh {
     /* border-radius: 50%; */
+    filter: drop-shadow(4px 6px 2px rgb(0 0 0 / 0.4));
     width: 9%;
     min-width: 100px;
     height: auto;
