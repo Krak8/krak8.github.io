@@ -162,7 +162,8 @@ body {
     font-size: 64px;
     white-space: break-spaces;
     text-align: center;
-    color: #fff
+    color: #fff;
+    filter: drop-shadow(4px 6px 2px rgb(0 0 0 / 0.4));
 }
 
 .logo.svelte-1ch4ikh {
