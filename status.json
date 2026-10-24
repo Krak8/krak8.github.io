@@ -1,6 +1,6 @@
 {
  "twitch": {
-  "live": false
+  "live": true
  },
  "youtube": {
   "id": "CuaYCRedceU",
