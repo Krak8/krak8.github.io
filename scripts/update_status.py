@@ -15,7 +15,7 @@ try:
     old = json.load(open("status.json"))
 except Exception:
     old = {}
-new = {k: old.get(k) for k in ("youtube", "videos", "clips", "channel_id")}
+new = {k: old.get(k) for k in ("videos", "clips", "channel_id")}
 new["twitch"] = old.get("twitch") or {"live": False}
 
 # Twitch: live state + top clips (most viewed)
@@ -45,10 +45,13 @@ try:
     if new["channel_id"]:
         root = ET.fromstring(get("https://www.youtube.com/feeds/videos.xml?channel_id=" + new["channel_id"]))
         ns = {"a": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
-        vids = [{"id": e.find("yt:videoId", ns).text, "title": e.find("a:title", ns).text,
-                 "published": e.find("a:published", ns).text} for e in root.findall("a:entry", ns)[:3]]
+        vids = []
+        for e in root.findall("a:entry", ns)[:3]:
+            vid = e.find("yt:videoId", ns).text
+            vids.append({"id": vid, "title": e.find("a:title", ns).text, "published": e.find("a:published", ns).text,
+                         "url": "https://www.youtube.com/watch?v=" + vid, "thumb": "https://i.ytimg.com/vi/" + vid + "/hqdefault.jpg"})
         if vids:
-            new["videos"], new["youtube"] = vids, {k: vids[0][k] for k in ("id", "title")}
+            new["videos"] = vids
 except Exception as e:
     print("youtube failed:", e)
 

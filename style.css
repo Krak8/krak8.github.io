@@ -1,3 +1,6 @@
+@font-face{font-family:Poppins;font-weight:500;font-display:swap;src:url(assets/fonts/poppins-latin-500-normal.woff2) format("woff2")}
+@font-face{font-family:Poppins;font-weight:600;font-display:swap;src:url(assets/fonts/poppins-latin-600-normal.woff2) format("woff2")}
+@font-face{font-family:"EB Garamond";font-style:italic;font-weight:600;font-display:swap;src:url(assets/fonts/eb-garamond-latin-600-italic.woff2) format("woff2")}
 *{box-sizing:border-box}
 :root{--night:#1b1b3a}
 html{overscroll-behavior-y:none}

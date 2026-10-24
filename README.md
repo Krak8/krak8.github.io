@@ -4,7 +4,7 @@ Edit links/handles in `<nav class="grid">`. Tagline lines are the `.ln` spans. S
 
 ## Live Twitch badge + latest YouTube video
 `.github/workflows/status.yml` runs every ~5 min, runs `scripts/update_status.py`, and commits `status.json`.
-1. Create an app at https://dev.twitch.tv/console (category "Other", redirect `http://localhost`).
+1. Create an app at the Twitch developer console (category "Other", redirect a localhost redirect).
 2. Repo -> Settings -> Secrets and variables -> Actions -> New repository secret:
    `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`.
 3. Actions tab -> "Update live status" -> Run workflow (enable workflows if prompted).

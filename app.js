@@ -105,10 +105,11 @@ const dn=$('#down'),onScroll=()=>dn.classList.toggle('gone',scrollY>30);
 addEventListener('scroll',onScroll,{passive:true});onScroll();
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
 $$('.more .rev').forEach(el=>io.observe(el));
-const tw=$('#tw');
-const loadTw=()=>{if(!location.hostname)return;
- const f=document.createElement('iframe');f.src='https://player.twitch.tv/?channel=krak8_&parent='+location.hostname+'&muted=true&autoplay=false';
- f.title='Krak8 on Twitch';f.allowFullscreen=true;tw.replaceChildren(f)};
+const tw=$('#tw'),twCard=$('[data-k=twitch]'),EMBED='https://player.twitch.tv/';   // the one non-social URL: an embed can't work without its host
+const loadTw=()=>{if(!location.hostname||!twCard)return;
+ const ch=new URL(twCard.href).pathname.replace(/\//g,'');   // channel comes from your Twitch social link
+ const f=document.createElement('iframe');f.src=EMBED+'?channel='+encodeURIComponent(ch)+'&parent='+location.hostname+'&muted=true&autoplay=false';
+ f.title='Twitch player';f.allowFullscreen=true;tw.replaceChildren(f)};
 if(fine){const io2=new IntersectionObserver(es=>{if(es[0].isIntersecting){io2.disconnect();loadTw()}},{rootMargin:'300px'});io2.observe(tw)}
 else{const b=document.createElement('button');b.className='pill';b.textContent='Load Twitch player';b.onclick=loadTw;tw.append(b)}   // phones: embedded players make scrolling choppy, so load on tap
 
@@ -144,7 +145,7 @@ addEventListener('scroll',()=>{clearTimeout(st);   // if a drag/flick ends betwe
  st=setTimeout(()=>{if(lock||!fits())return;const m=mTop();if(scrollY>3&&scrollY<m-3)glide(scrollY<m/2?0:m)},140)},{passive:true});
 
 /* ---------- live status + videos + clips (written by the GitHub Action) ---------- */
-const SRC=['https://raw.githubusercontent.com/Krak8/krak8.github.io/main/status.json','status.json'];
+const SRC=['status.json'];
 const nf=new Intl.NumberFormat('en',{notation:'compact'}),rf=new Intl.RelativeTimeFormat('en',{numeric:'auto'});
 const ago=iso=>{const d=(new Date(iso)-Date.now())/864e5,x=Math.abs(d);return x<1?'today':x<30?rf.format(Math.round(d),'day'):x<365?rf.format(Math.round(d/30),'month'):rf.format(Math.round(d/365),'year')};
 function tile(href,thumb,title,meta){const a=document.createElement('a');a.className='tile';a.href=href;a.target='_blank';a.rel='noopener noreferrer';
@@ -153,13 +154,13 @@ function tile(href,thumb,title,meta){const a=document.createElement('a');a.class
  s.append(b,m);a.append(i,s);return a}
 function fill(id,items){const g=$('#g-'+id);g.querySelector('.vgrid').replaceChildren(...items);g.hidden=!items.length}
 function apply(s){
- const fresh=Date.now()/1000-(s.updated||0)<5400,t=s.twitch||{},c=$$('.card').find(a=>a.href.includes('twitch.tv'));
+ const fresh=Date.now()/1000-(s.updated||0)<5400,t=s.twitch||{},c=twCard;
  if(c){const sm=c.querySelector('small');if(!sm.dataset.h)sm.dataset.h=sm.textContent;
   c.querySelector('.live')?.remove();sm.textContent=sm.dataset.h;
   if(t.live&&fresh){const b=document.createElement('span');b.className='live';b.textContent='Live';c.append(b);
    const bits=[t.game,t.viewers!=null?t.viewers+' watching':''].filter(Boolean).join(' · ');if(bits)sm.textContent=bits}}
- const vids=(s.videos||(s.youtube?[s.youtube]:[])).slice(0,3);
- fill('vids',vids.map(v=>tile('https://www.youtube.com/watch?v='+encodeURIComponent(v.id),'https://i.ytimg.com/vi/'+encodeURIComponent(v.id)+'/hqdefault.jpg',v.title||'Watch now',v.published?ago(v.published):'')));
+ const vids=(s.videos||[]).filter(v=>v.url&&v.thumb).slice(0,3);
+ fill('vids',vids.map(v=>tile(v.url,v.thumb,v.title||'Watch now',v.published?ago(v.published):'')));
  fill('clips',(s.clips||[]).slice(0,6).map(k=>tile(k.url,k.thumb,k.title||'Clip',nf.format(k.views||0)+' views')))}
 async function poll(){
  const bust='?t='+Date.now();   // unique URL each time so no cache can serve an old copy
