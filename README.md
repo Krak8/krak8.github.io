@@ -1,8 +1,15 @@
 # krak8.github.io
-My socials link tree — me.krak8.top
+Socials link tree — me.krak8.top. Plain static site (`index.html`, `style.css`, `app.js`); push to `main`.
+Edit links/handles in `<nav class="grid">`. Tagline lines are the `.ln` spans. Scene layers are in `assets/`.
 
-Plain static site: `index.html`, `style.css`, `parallax.js`. No build step; push to `main` and GitHub Pages serves it.
+## Live Twitch badge + latest YouTube video
+`.github/workflows/status.yml` runs every ~5 min, runs `scripts/update_status.py`, and commits `status.json`.
+1. Create an app at https://dev.twitch.tv/console (category "Other", redirect `http://localhost`).
+2. Repo -> Settings -> Secrets and variables -> Actions -> New repository secret:
+   `TWITCH_CLIENT_ID` and `TWITCH_CLIENT_SECRET`.
+3. Actions tab -> "Update live status" -> Run workflow (enable workflows if prompted).
+The secret stays in GitHub and is never in the website. YouTube needs no key.
 
-- Edit links in the `<nav>` in `index.html`.
-- Scene layers live in `assets/` (back to front: l01-sky … l11, then foreground).
-- `/discord` and `/live` are instant redirect pages so old shared links keep working.
+## Short links
+`/x /gh /yt /ig /tw /dc` redirect to each profile (plus `/twitter /github /youtube /instagram /twitch /live /discord`).
+To add or change one, edit `LINKS` in `scripts/make_redirects.py` and run `python3 scripts/make_redirects.py`.
