@@ -44,8 +44,9 @@ const cv=$('#fx'),ctx=cv.getContext('2d');let W,H,D;
 const P=Array.from({length:innerWidth<600?50:100},()=>({x:Math.random(),y:Math.random(),r:.6+Math.random()*2.4,v:.25+Math.random()*.75,p:Math.random()*6.28}));
 const S=Array.from({length:70},()=>({x:Math.random(),y:Math.random()*.6,r:.4+Math.random()*1.1,p:Math.random()*6.28}));
 let sh=null;const B=[];
-function size(){D=Math.min(devicePixelRatio||1,2);W=cv.width=innerWidth*D;H=cv.height=innerHeight*D}
-size();addEventListener('resize',size);
+let lw=0;
+function size(){lw=innerWidth;D=Math.min(devicePixelRatio||1,fine?2:1.5);W=cv.width=Math.round(cv.clientWidth*D);H=cv.height=Math.round(cv.clientHeight*D)}
+size();addEventListener('resize',()=>{if(innerWidth!==lw)size()});   // ignore height-only resizes from the phone's address bar
 function frame(t){requestAnimationFrame(frame);ctx.clearRect(0,0,W,H);if(document.hidden)return;
  if(fxOn){const night=mood==='night';
   if(night){for(const s of S){ctx.fillStyle=`rgba(255,255,255,${.3+.5*Math.sin(t/700+s.p)**2})`;ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r*D,0,6.283);ctx.fill()}
@@ -104,11 +105,43 @@ const dn=$('#down'),onScroll=()=>dn.classList.toggle('gone',scrollY>30);
 addEventListener('scroll',onScroll,{passive:true});onScroll();
 const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
 $$('.more .rev').forEach(el=>io.observe(el));
-const tw=$('#tw'),io2=new IntersectionObserver(es=>{if(es[0].isIntersecting){io2.disconnect();
- if(!location.hostname)return;
+const tw=$('#tw');
+const loadTw=()=>{if(!location.hostname)return;
  const f=document.createElement('iframe');f.src='https://player.twitch.tv/?channel=krak8_&parent='+location.hostname+'&muted=true&autoplay=false';
- f.title='Krak8 on Twitch';f.allowFullscreen=true;f.loading='lazy';tw.append(f)}},{rootMargin:'300px'});
-io2.observe(tw);
+ f.title='Krak8 on Twitch';f.allowFullscreen=true;tw.replaceChildren(f)};
+if(fine){const io2=new IntersectionObserver(es=>{if(es[0].isIntersecting){io2.disconnect();loadTw()}},{rootMargin:'300px'});io2.observe(tw)}
+else{const b=document.createElement('button');b.className='pill';b.textContent='Load Twitch player';b.onclick=loadTw;tw.append(b)}   // phones: embedded players make scrolling choppy, so load on tap
+
+/* ---------- snappy paging: landing <-> #more ---------- */
+let lock=false,lastWheel=0,tS=null,st;
+const mTop=()=>$('#more').getBoundingClientRect().top+scrollY;
+const fits=()=>mTop()-innerHeight<120;            // only page-snap when the landing screen fits (tall phones/desktops)
+const atHero=()=>scrollY<3,atMore=()=>Math.abs(scrollY-mTop())<3;
+function glide(to){if(lock)return;lock=true;const from=scrollY,d=to-from,t0=performance.now(),dur=reduce?1:520;
+ const step=t=>{const p=Math.min(1,(t-t0)/dur);scrollTo({top:from+d*(1-Math.pow(1-p,4)),behavior:'instant'});
+  if(p<1)requestAnimationFrame(step);else setTimeout(()=>{lock=false},120)};
+ requestAnimationFrame(step)}
+const goDown=()=>glide(mTop()),goUp=()=>glide(0);
+dn.addEventListener('click',e=>{e.preventDefault();goDown()});
+addEventListener('wheel',e=>{
+ if(lock){e.preventDefault();lastWheel=performance.now();return}
+ const now=performance.now(),fresh=now-lastWheel>100,dy=e.deltaY*(e.deltaMode===1?16:1);lastWheel=now;
+ if(e.ctrlKey||!fits()||Math.abs(dy)<3)return;
+ if(dy>0&&atHero()){e.preventDefault();goDown()}
+ else if(dy<0&&atMore()){e.preventDefault();if(fresh)goUp()}   // fresh = a new gesture, not leftover momentum
+ else if(dy<0&&scrollY>mTop()+3&&scrollY+dy<mTop()){e.preventDefault();scrollTo({top:mTop(),behavior:'instant'})}   // don't overshoot into the landing screen
+},{passive:false});
+addEventListener('touchstart',e=>{const t=e.touches[0];tS={x:t.clientX,y:t.clientY,hero:atHero(),more:atMore()}},{passive:true});
+addEventListener('touchmove',e=>{if(!tS||lock||!fits())return;const t=e.touches[0],dy=t.clientY-tS.y,dx=t.clientX-tS.x;
+ if(Math.abs(dy)<10||Math.abs(dx)>Math.abs(dy))return;
+ if(tS.hero&&dy<0&&atHero()){if(e.cancelable)e.preventDefault();tS=null;goDown()}
+ else if(tS.more&&dy>0&&atMore()){if(e.cancelable)e.preventDefault();tS=null;goUp()}},{passive:false});
+addEventListener('keydown',e=>{if(lock||e.ctrlKey||e.metaKey||e.altKey||!fits())return;
+ if(e.key===' '&&e.target.closest?.('button,a,input,textarea'))return;
+ if((['ArrowDown','PageDown'].includes(e.key)||(e.key===' '&&!e.shiftKey))&&atHero()){e.preventDefault();goDown()}
+ else if((['ArrowUp','PageUp'].includes(e.key)||(e.key===' '&&e.shiftKey))&&atMore()){e.preventDefault();goUp()}});
+addEventListener('scroll',()=>{clearTimeout(st);   // if a drag/flick ends between the two screens, finish the move
+ st=setTimeout(()=>{if(lock||!fits())return;const m=mTop();if(scrollY>3&&scrollY<m-3)glide(scrollY<m/2?0:m)},140)},{passive:true});
 
 /* ---------- live status + videos + clips (written by the GitHub Action) ---------- */
 const SRC=['https://raw.githubusercontent.com/Krak8/krak8.github.io/main/status.json','status.json'];

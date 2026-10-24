@@ -1,6 +1,6 @@
 *{box-sizing:border-box}
 :root{--night:#1b1b3a}
-html{scroll-behavior:smooth}
+html{overscroll-behavior-y:none}
 html,body{margin:0;background:var(--night);color:#fff;font-family:Poppins,system-ui,sans-serif}
 body{min-height:100dvh;overflow-x:hidden}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -91,4 +91,15 @@ transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));tra
 .rev.in{opacity:1;transform:none}
 @media(max-width:820px){.vgrid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:520px){.vgrid{grid-template-columns:1fr}}
-@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rev{opacity:1;transform:none}.down svg{animation:none;opacity:.85}}
+@media(prefers-reduced-motion:reduce){.rev{opacity:1;transform:none}.down svg{animation:none;opacity:.85}}
+
+/* ---------- phone scroll smoothness ---------- */
+@supports(height:100lvh){.scene,#fx{height:100lvh}.page{min-height:100svh}}
+.scene img{will-change:auto}
+@media(hover:hover) and (pointer:fine){.scene img{will-change:transform}}
+@media(hover:none){
+ .card,.tile,.pill,.seg{-webkit-backdrop-filter:none;backdrop-filter:none;background:#0a0e24a8}
+ .aurora{filter:none}
+ body::after{display:none}
+ .embed{display:grid;place-items:center}
+}
