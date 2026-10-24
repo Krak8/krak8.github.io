@@ -100,17 +100,19 @@ if(ln.length>1&&!reduce){let n=0;setInterval(()=>{if(document.hidden)return;
 
 /* ---------- live status + latest video (written by the GitHub Action) ---------- */
 const SRC=['https://raw.githubusercontent.com/Krak8/krak8.github.io/main/status.json','status.json'];
-(async()=>{let s=null;
- for(const u of SRC){try{const r=await fetch(u,{cache:'no-cache'});if(r.ok){s=await r.json();break}}catch{}}
- if(!s)return;
- const fresh=Date.now()/1000-(s.updated||0)<5400;
- const tw=s.twitch;
- if(tw&&tw.live&&fresh){const c=$$('.card').find(a=>a.href.includes('twitch.tv'));
-  if(c){const b=document.createElement('span');b.className='live';b.textContent='Live';c.append(b);
-   const sm=c.querySelector('small'),bits=[tw.game,tw.viewers!=null?tw.viewers+' watching':''].filter(Boolean).join(' · ');
-   if(bits)sm.textContent=bits}}
- const y=s.youtube;
- if(y&&y.id){const v=$('#vid');v.href='https://www.youtube.com/watch?v='+encodeURIComponent(y.id);
-  v.querySelector('img').src='https://i.ytimg.com/vi/'+encodeURIComponent(y.id)+'/hqdefault.jpg';
-  v.querySelector('b').textContent=y.title||'Watch now';v.hidden=false}})();
+function apply(s){
+ const fresh=Date.now()/1000-(s.updated||0)<5400,tw=s.twitch||{},c=$$('.card').find(a=>a.href.includes('twitch.tv'));
+ if(c){const sm=c.querySelector('small');if(!sm.dataset.h)sm.dataset.h=sm.textContent;
+  c.querySelector('.live')?.remove();sm.textContent=sm.dataset.h;
+  if(tw.live&&fresh){const b=document.createElement('span');b.className='live';b.textContent='Live';c.append(b);
+   const bits=[tw.game,tw.viewers!=null?tw.viewers+' watching':''].filter(Boolean).join(' · ');if(bits)sm.textContent=bits}}
+ const y=s.youtube,v=$('#vid');
+ if(y&&y.id){v.href='https://www.youtube.com/watch?v='+encodeURIComponent(y.id);
+  const im=v.querySelector('img'),src='https://i.ytimg.com/vi/'+encodeURIComponent(y.id)+'/hqdefault.jpg';if(im.src!==src)im.src=src;
+  v.querySelector('b').textContent=y.title||'Watch now';v.hidden=false}}
+async function poll(){
+ const bust='?t='+Date.now();   // unique URL every time, so neither the browser nor GitHub's CDN can serve an old copy
+ for(const u of SRC){try{const r=await fetch(u+bust,{cache:'no-store'});if(r.ok){apply(await r.json());return}}catch{}}}
+poll();setInterval(()=>{if(!document.hidden)poll()},120000);
+addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});
 })();
