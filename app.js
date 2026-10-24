@@ -95,23 +95,41 @@ if(!reduce){
 /* ---------- cycling tagline ---------- */
 const ln=$$('.ln');
 if(ln.length>1&&!reduce){let n=0;setInterval(()=>{if(document.hidden)return;
- ln[n].classList.remove('on');ln[n].setAttribute('aria-hidden','true');
- n=(n+1)%ln.length;ln[n].classList.add('on');ln[n].removeAttribute('aria-hidden')},4200)}
+ const o=ln[n];o.classList.remove('on');o.classList.add('out');o.setAttribute('aria-hidden','true');
+ setTimeout(()=>o.classList.remove('out'),700);   // reset below the baseline, unseen, ready for its next entrance
+ n=(n+1)%ln.length;const i=ln[n];i.classList.remove('out');i.classList.add('on');i.removeAttribute('aria-hidden')},6500)}
 
-/* ---------- live status + latest video (written by the GitHub Action) ---------- */
+/* ---------- scroll cue, reveal-on-scroll, lazy Twitch player ---------- */
+const dn=$('#down'),onScroll=()=>dn.classList.toggle('gone',scrollY>30);
+addEventListener('scroll',onScroll,{passive:true});onScroll();
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{threshold:.12});
+$$('.more .rev').forEach(el=>io.observe(el));
+const tw=$('#tw'),io2=new IntersectionObserver(es=>{if(es[0].isIntersecting){io2.disconnect();
+ if(!location.hostname)return;
+ const f=document.createElement('iframe');f.src='https://player.twitch.tv/?channel=krak8_&parent='+location.hostname+'&muted=true&autoplay=false';
+ f.title='Krak8 on Twitch';f.allowFullscreen=true;f.loading='lazy';tw.append(f)}},{rootMargin:'300px'});
+io2.observe(tw);
+
+/* ---------- live status + videos + clips (written by the GitHub Action) ---------- */
 const SRC=['https://raw.githubusercontent.com/Krak8/krak8.github.io/main/status.json','status.json'];
+const nf=new Intl.NumberFormat('en',{notation:'compact'}),rf=new Intl.RelativeTimeFormat('en',{numeric:'auto'});
+const ago=iso=>{const d=(new Date(iso)-Date.now())/864e5,x=Math.abs(d);return x<1?'today':x<30?rf.format(Math.round(d),'day'):x<365?rf.format(Math.round(d/30),'month'):rf.format(Math.round(d/365),'year')};
+function tile(href,thumb,title,meta){const a=document.createElement('a');a.className='tile';a.href=href;a.target='_blank';a.rel='noopener noreferrer';
+ const i=document.createElement('img');i.src=thumb;i.alt='';i.loading='lazy';
+ const s=document.createElement('span');s.className='tx';const b=document.createElement('b');b.textContent=title;const m=document.createElement('small');m.textContent=meta;
+ s.append(b,m);a.append(i,s);return a}
+function fill(id,items){const g=$('#g-'+id);g.querySelector('.vgrid').replaceChildren(...items);g.hidden=!items.length}
 function apply(s){
- const fresh=Date.now()/1000-(s.updated||0)<5400,tw=s.twitch||{},c=$$('.card').find(a=>a.href.includes('twitch.tv'));
+ const fresh=Date.now()/1000-(s.updated||0)<5400,t=s.twitch||{},c=$$('.card').find(a=>a.href.includes('twitch.tv'));
  if(c){const sm=c.querySelector('small');if(!sm.dataset.h)sm.dataset.h=sm.textContent;
   c.querySelector('.live')?.remove();sm.textContent=sm.dataset.h;
-  if(tw.live&&fresh){const b=document.createElement('span');b.className='live';b.textContent='Live';c.append(b);
-   const bits=[tw.game,tw.viewers!=null?tw.viewers+' watching':''].filter(Boolean).join(' · ');if(bits)sm.textContent=bits}}
- const y=s.youtube,v=$('#vid');
- if(y&&y.id){v.href='https://www.youtube.com/watch?v='+encodeURIComponent(y.id);
-  const im=v.querySelector('img'),src='https://i.ytimg.com/vi/'+encodeURIComponent(y.id)+'/hqdefault.jpg';if(im.src!==src)im.src=src;
-  v.querySelector('b').textContent=y.title||'Watch now';v.hidden=false}}
+  if(t.live&&fresh){const b=document.createElement('span');b.className='live';b.textContent='Live';c.append(b);
+   const bits=[t.game,t.viewers!=null?t.viewers+' watching':''].filter(Boolean).join(' · ');if(bits)sm.textContent=bits}}
+ const vids=(s.videos||(s.youtube?[s.youtube]:[])).slice(0,3);
+ fill('vids',vids.map(v=>tile('https://www.youtube.com/watch?v='+encodeURIComponent(v.id),'https://i.ytimg.com/vi/'+encodeURIComponent(v.id)+'/hqdefault.jpg',v.title||'Watch now',v.published?ago(v.published):'')));
+ fill('clips',(s.clips||[]).slice(0,6).map(k=>tile(k.url,k.thumb,k.title||'Clip',nf.format(k.views||0)+' views')))}
 async function poll(){
- const bust='?t='+Date.now();   // unique URL every time, so neither the browser nor GitHub's CDN can serve an old copy
+ const bust='?t='+Date.now();   // unique URL each time so no cache can serve an old copy
  for(const u of SRC){try{const r=await fetch(u+bust,{cache:'no-store'});if(r.ok){apply(await r.json());return}}catch{}}}
 poll();setInterval(()=>{if(!document.hidden)poll()},120000);
 addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});

@@ -1,4 +1,4 @@
-"""Writes status.json: Twitch live state + latest YouTube video.
+"""Writes status.json: Twitch live state + top clips, and the 3 latest YouTube videos.
 Secrets come from GitHub Actions secrets (env vars) and never reach the website."""
 import json, os, re, time, urllib.parse, urllib.request, xml.etree.ElementTree as ET
 
@@ -15,22 +15,28 @@ try:
     old = json.load(open("status.json"))
 except Exception:
     old = {}
-new = {"twitch": old.get("twitch") or {"live": False}, "youtube": old.get("youtube"), "channel_id": old.get("channel_id")}
+new = {k: old.get(k) for k in ("youtube", "videos", "clips", "channel_id")}
+new["twitch"] = old.get("twitch") or {"live": False}
 
-# Twitch
+# Twitch: live state + top clips (most viewed)
 cid, sec = os.environ.get("TWITCH_CLIENT_ID"), os.environ.get("TWITCH_CLIENT_SECRET")
 if cid and sec:
     try:
         tok = json.loads(get("https://id.twitch.tv/oauth2/token", data=urllib.parse.urlencode(
             {"client_id": cid, "client_secret": sec, "grant_type": "client_credentials"}).encode()))["access_token"]
-        d = json.loads(get("https://api.twitch.tv/helix/streams?user_login=" + urllib.parse.quote(TWITCH_LOGIN),
-                           headers={"Client-Id": cid, "Authorization": "Bearer " + tok}))["data"]
+        H = {"Client-Id": cid, "Authorization": "Bearer " + tok}
+        q = urllib.parse.quote(TWITCH_LOGIN)
+        d = json.loads(get("https://api.twitch.tv/helix/streams?user_login=" + q, headers=H))["data"]
         new["twitch"] = ({"live": True, "title": d[0]["title"], "game": d[0]["game_name"], "viewers": d[0]["viewer_count"]}
                          if d else {"live": False})
+        uid = json.loads(get("https://api.twitch.tv/helix/users?login=" + q, headers=H))["data"][0]["id"]
+        cl = json.loads(get("https://api.twitch.tv/helix/clips?first=6&broadcaster_id=" + uid, headers=H))["data"]
+        new["clips"] = [{"id": c["id"], "url": c["url"], "title": c["title"], "views": c["view_count"],
+                         "thumb": c["thumbnail_url"]} for c in cl]
     except Exception as e:
         print("twitch failed:", e)
 
-# YouTube (public RSS feed, no key needed)
+# YouTube: 3 latest videos from the public RSS feed (no key needed)
 try:
     if not new["channel_id"]:
         page = get("https://www.youtube.com/@" + YT_HANDLE)
@@ -39,14 +45,16 @@ try:
     if new["channel_id"]:
         root = ET.fromstring(get("https://www.youtube.com/feeds/videos.xml?channel_id=" + new["channel_id"]))
         ns = {"a": "http://www.w3.org/2005/Atom", "yt": "http://www.youtube.com/xml/schemas/2015"}
-        e = root.find("a:entry", ns)
-        if e is not None:
-            new["youtube"] = {"id": e.find("yt:videoId", ns).text, "title": e.find("a:title", ns).text}
+        vids = [{"id": e.find("yt:videoId", ns).text, "title": e.find("a:title", ns).text,
+                 "published": e.find("a:published", ns).text} for e in root.findall("a:entry", ns)[:3]]
+        if vids:
+            new["videos"], new["youtube"] = vids, {k: vids[0][k] for k in ("id", "title")}
 except Exception as e:
     print("youtube failed:", e)
 
-# Only rewrite when something changed (or every ~30 min as a heartbeat) to keep commits quiet
-same = all(old.get(k) == new[k] for k in new)
+# Rewrite only on real changes (view counts alone don't count) or as a ~30 min heartbeat
+ids = lambda d: [c["id"] for c in (d.get("clips") or [])]
+same = all(old.get(k) == new[k] for k in new if k != "clips") and ids(old) == ids(new)
 if not same or time.time() - old.get("updated", 0) > 1800:
     new["updated"] = int(time.time())
     json.dump(new, open("status.json", "w"), indent=1)
