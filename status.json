@@ -1,1 +1,74 @@
-{"updated":0,"twitch":{"live":false},"youtube":null,"channel_id":null}
+{
+ "videos": [
+  {
+   "id": "CuaYCRedceU",
+   "title": "\ud83d\udd25Day 9 Playing Chosen's Modded Adventure and some Valorant \ud83d\udd25",
+   "published": "2023-10-16T05:30:03+00:00",
+   "url": "https://www.youtube.com/watch?v=CuaYCRedceU",
+   "thumb": "https://i.ytimg.com/vi/CuaYCRedceU/hqdefault.jpg"
+  },
+  {
+   "id": "IWBPJDdQRMM",
+   "title": "\ud83d\udd25Day 8 Playing Chosen's Modded Adventure on server\ud83d\udd25",
+   "published": "2023-10-15T05:30:05+00:00",
+   "url": "https://www.youtube.com/watch?v=IWBPJDdQRMM",
+   "thumb": "https://i.ytimg.com/vi/IWBPJDdQRMM/hqdefault.jpg"
+  },
+  {
+   "id": "8kYdOqfJQcE",
+   "title": "\ud83d\udd25Day 7 Playing Chosen's Modded Adventure on server\ud83d\udd25",
+   "published": "2023-10-14T05:30:02+00:00",
+   "url": "https://www.youtube.com/watch?v=8kYdOqfJQcE",
+   "thumb": "https://i.ytimg.com/vi/8kYdOqfJQcE/hqdefault.jpg"
+  }
+ ],
+ "clips": [
+  {
+   "id": "SullenHardReubenAMPEnergy-KMm4s4tKR_hkErzg",
+   "url": "https://www.twitch.tv/krak8_/clip/SullenHardReubenAMPEnergy-KMm4s4tKR_hkErzg",
+   "title": "The Signature bhakti Laugh",
+   "views": 57,
+   "thumb": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/eb5bdcc4-e477-45d3-9405-7aef0be6bb13/landscape/thumb/thumb-0000000000-480x272.jpg"
+  },
+  {
+   "id": "GeniusDarlingJackalHotPokket-DhBpZTwLRhs88GYp",
+   "url": "https://www.twitch.tv/krak8_/clip/GeniusDarlingJackalHotPokket-DhBpZTwLRhs88GYp",
+   "title": "back in the day they were cheaper",
+   "views": 48,
+   "thumb": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/37f423a4-b395-4bb6-a78d-b2e4b4710d54/landscape/thumb/thumb-0000000000-480x272.jpg"
+  },
+  {
+   "id": "TangentialOddFriesDAESuppy-yYcF0iOfTVqWbhXA",
+   "url": "https://www.twitch.tv/krak8_/clip/TangentialOddFriesDAESuppy-yYcF0iOfTVqWbhXA",
+   "title": "Priorities ",
+   "views": 47,
+   "thumb": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/5f11ba6a-563f-4d8b-b7d3-41f1b9b3bcb8/landscape/thumb/thumb-0000000000-480x272.jpg"
+  },
+  {
+   "id": "AverageRealHerringMau5--7uNZXNWjEA4Y-DJ",
+   "url": "https://www.twitch.tv/krak8_/clip/AverageRealHerringMau5--7uNZXNWjEA4Y-DJ",
+   "title": "Pro Player Bhakti",
+   "views": 45,
+   "thumb": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/e15b288d-f177-4e59-bf1b-27868622e3f0/landscape/thumb/thumb-0000000000-480x272.jpg"
+  },
+  {
+   "id": "HonestClearMetalSMOrc-7OXONMEMyoxJsFlq",
+   "url": "https://www.twitch.tv/krak8_/clip/HonestClearMetalSMOrc-7OXONMEMyoxJsFlq",
+   "title": "dont clip",
+   "views": 44,
+   "thumb": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/212fbec1-5951-41ca-bd91-22a70b1e9b6e/landscape/thumb/thumb-0000000000-480x272.jpg"
+  },
+  {
+   "id": "SpikyHelplessTaroTBCheesePull-u5XUwf_xm4O3Fqjs",
+   "url": "https://www.twitch.tv/krak8_/clip/SpikyHelplessTaroTBCheesePull-u5XUwf_xm4O3Fqjs",
+   "title": "Krak forgetting he has other tabs open",
+   "views": 35,
+   "thumb": "https://static-cdn.jtvnw.net/twitch-video-assets/twitch-vap-video-assets-prod-us-west-2/79633baf-9170-4753-804f-91272598ef93/landscape/thumb/thumb-0000000000-480x272.jpg"
+  }
+ ],
+ "channel_id": "UCRuVCO2S29PTBfSUHO7mErQ",
+ "twitch": {
+  "live": false
+ },
+ "updated": 1792866468
+}
