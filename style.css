@@ -45,7 +45,7 @@ transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));tra
 .card:focus-visible{outline:3px solid #fff;outline-offset:3px}
 .ib{position:relative;display:grid;place-items:center;width:46px;height:46px;border-radius:14px;background:#ffffff1f;flex:none;transition:background .3s,color .3s,transform .3s}
 .ib svg{width:24px;height:24px}
-.card:hover .ib,.card:focus-visible .ib{background:var(--c);color:#fff;transform:rotate(-6deg) scale(1.08)}
+.card:hover .ib,.card:focus-visible .ib{background:var(--ic,var(--c));color:#fff;transform:rotate(-6deg) scale(1.08)}
 .tx{position:relative;display:flex;flex-direction:column;min-width:0;line-height:1.25}
 .tx b{font-weight:600}.tx small{font-weight:500;font-size:.78rem;opacity:.75;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ar{position:relative;margin-left:auto;width:20px;height:20px;opacity:.5;transition:transform .3s,opacity .3s}
