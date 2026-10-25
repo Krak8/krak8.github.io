@@ -1,7 +1,7 @@
 """Generates short-link redirect pages (e.g. /dc -> Discord). Edit LINKS, run: python3 scripts/make_redirects.py"""
 import os
 LINKS = {
-    "x":  ("X", "https://twitter.com/itskrak8", ["twitter"]),
+    "x":  ("twitter", "https://x.com/imkrak8", ["twitter"]),
     "gh": ("GitHub", "https://github.com/Krak8", ["github"]),
     "yt": ("YouTube", "https://www.youtube.com/@Krak8", ["youtube"]),
     "ig": ("Instagram", "https://www.instagram.com/imkrak8", ["instagram", "insta"]),
