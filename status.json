@@ -2,21 +2,21 @@
  "videos": [
   {
    "id": "CuaYCRedceU",
-   "title": "\ud83d\udd25Day 9 Playing Chosen's Modded Adventure and some Valorant \ud83d\udd25",
+   "title": "🔥Day 9 Playing Chosen's Modded Adventure and some Valorant 🔥",
    "published": "2023-10-16T05:30:03+00:00",
    "url": "https://www.youtube.com/watch?v=CuaYCRedceU",
    "thumb": "https://i.ytimg.com/vi/CuaYCRedceU/hqdefault.jpg"
   },
   {
    "id": "IWBPJDdQRMM",
-   "title": "\ud83d\udd25Day 8 Playing Chosen's Modded Adventure on server\ud83d\udd25",
+   "title": "🔥Day 8 Playing Chosen's Modded Adventure on server🔥",
    "published": "2023-10-15T05:30:05+00:00",
    "url": "https://www.youtube.com/watch?v=IWBPJDdQRMM",
    "thumb": "https://i.ytimg.com/vi/IWBPJDdQRMM/hqdefault.jpg"
   },
   {
    "id": "8kYdOqfJQcE",
-   "title": "\ud83d\udd25Day 7 Playing Chosen's Modded Adventure on server\ud83d\udd25",
+   "title": "🔥Day 7 Playing Chosen's Modded Adventure on server🔥",
    "published": "2023-10-14T05:30:02+00:00",
    "url": "https://www.youtube.com/watch?v=8kYdOqfJQcE",
    "thumb": "https://i.ytimg.com/vi/8kYdOqfJQcE/hqdefault.jpg"
@@ -70,5 +70,7 @@
  "twitch": {
   "live": false
  },
- "updated": 1792958303
+ "twitch_updated": 1792960351,
+ "youtube_updated": 1792960351,
+ "updated": 1792960351
 }
