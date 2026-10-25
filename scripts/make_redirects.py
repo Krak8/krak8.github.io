@@ -1,5 +1,6 @@
 """Generates short-link redirect pages (e.g. /dc -> Discord). Edit LINKS, run: python3 scripts/make_redirects.py"""
 import os
+from html import escape
 LINKS = {
     "x":  ("twitter", "https://x.com/imkrak8", ["twitter"]),
     "gh": ("GitHub", "https://github.com/Krak8", ["github"]),
@@ -21,12 +22,11 @@ PAGE = """<!DOCTYPE html>
 </head>
 <body>
   <p>Taking you to {name}… <a href="{url}">Tap here if nothing happens.</a></p>
-  <script>location.replace({url!r});</script>
 </body>
 </html>
 """
 for slug, (name, url, aliases) in LINKS.items():
     for s in [slug] + aliases:
         os.makedirs(s, exist_ok=True)
-        open(os.path.join(s, "index.html"), "w").write(PAGE.format(name=name, url=url))
+        open(os.path.join(s, "index.html"), "w").write(PAGE.format(name=escape(name), url=escape(url, quote=True)))
 print("done")

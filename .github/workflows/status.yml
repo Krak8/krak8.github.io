@@ -6,11 +6,16 @@ on:
 permissions:
   contents: write
   pages: write
+concurrency:
+  group: site-write-${{ github.ref }}
+  cancel-in-progress: false
 jobs:
   update:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: Fetch Twitch + YouTube status
         env:
           TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
@@ -23,4 +28,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add status.json
-          git diff --staged --quiet || (git commit -m "Update status" && git push && (gh api --method POST "/repos/${{ github.repository }}/pages/builds" || true))
+          if git diff --staged --quiet; then echo "No status changes to commit."; exit 0; fi
+          git commit -m "Update status"
+          git pull --rebase origin "${GITHUB_REF_NAME}"
+          git push origin "HEAD:${GITHUB_REF_NAME}"
+          gh api --method POST "/repos/${{ github.repository }}/pages/builds" || true   # ask Pages to rebuild so the live site sees the new data

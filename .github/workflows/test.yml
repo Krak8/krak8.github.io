@@ -1,0 +1,32 @@
+name: Validate site
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - name: Python regression tests
+        run: python -m unittest discover -s tests -v
+      - name: Validate JSON
+        run: python -m json.tool status.json >/dev/null
+      - name: Check JavaScript syntax
+        run: node --check app.js
+      - name: Check generated/local assets
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          root = Path('.')
+          html = (root / 'index.html').read_text()
+          for ref in re.findall(r'(?:src|href)="([^"?#]+)', html):
+              if ref.startswith(('https://', 'http://', '#', 'data:')): continue
+              if not (root / ref).exists(): raise SystemExit(f'Missing local asset: {ref}')
+          print('Local HTML assets exist.')
+          PY

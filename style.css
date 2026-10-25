@@ -24,8 +24,10 @@ body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:1;back
 .page{position:relative;z-index:2;min-height:100dvh;display:flex;flex-direction:column;align-items:center;gap:clamp(1rem,3.2vh,2rem);padding:max(1.5rem,env(safe-area-inset-top)) 1rem max(1.25rem,env(safe-area-inset-bottom))}
 .rise{opacity:0;animation:rise .8s cubic-bezier(.2,.8,.2,1) calc(var(--i)*90ms + .2s) forwards}
 @keyframes rise{from{opacity:0;transform:translateY(22px) scale(.98)}to{opacity:1;transform:none}}
-.logo{margin-top:auto;width:clamp(96px,9vw,140px);height:auto;filter:drop-shadow(4px 6px 2px #0006)}
-.logo.rise{animation:rise .8s .2s both,bob 6s ease-in-out 1s infinite}
+.logo-button{display:block;margin-top:auto;padding:0;border:0;background:transparent;line-height:0;border-radius:12px;flex:none}
+.logo{display:block;margin:0;width:clamp(96px,9vw,140px);height:auto;filter:drop-shadow(4px 6px 2px #0006)}
+.logo-button.rise{animation:rise .8s .2s both,bob 6s ease-in-out 1s infinite}
+.logo-button:focus-visible{outline:3px solid #fff;outline-offset:7px}
 @keyframes bob{50%{transform:translateY(-8px) rotate(-1.5deg)}}
 .tag{display:grid;margin:0;padding:0 .5rem;font:italic 600 clamp(2rem,5.6vw,4rem)/1.15 "EB Garamond",Georgia,serif;text-align:center;text-wrap:balance;filter:drop-shadow(4px 6px 2px #0006)}
 .ln{grid-area:1/1;opacity:0;transform:translateY(14px);transition:opacity .45s ease,transform .45s ease;
@@ -65,7 +67,7 @@ transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));tra
 @media(hover:none){.hint{display:none}}
 @media(prefers-reduced-motion:reduce){*,::before,::after{animation:none!important;transition:none!important}.rise{opacity:1}.ln{color:#fff;background:none}}
 
-.logo{cursor:pointer;-webkit-user-select:none;user-select:none}
+.logo-button{cursor:pointer;-webkit-user-select:none;user-select:none}
 .live{position:absolute;top:10px;right:12px;display:flex;align-items:center;gap:.35rem;padding:.15rem .55rem;border-radius:999px;background:#ff2d3a;font-size:.7rem;font-weight:600;animation:ping 1.8s infinite}
 .live::before{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
 @keyframes ping{0%{box-shadow:0 0 0 0 #ff2d3a99}100%{box-shadow:0 0 0 10px #ff2d3a00}}
@@ -168,3 +170,10 @@ body.motion .scene img{will-change:transform;backface-visibility:hidden}
  max-width:calc(100vw - 2rem);justify-content:flex-start;transform-origin:0 100%;transform:translateY(14px) scale(.94)}
 .panel.open{transform:none}
 @media(hover:none){.fab{-webkit-backdrop-filter:none;backdrop-filter:none;background:#0a0e24e6}.bar2{display:none}}
+
+/* Respect reduced motion and compact viewports without changing the visual theme. */
+@media(prefers-reduced-motion:reduce){.aurora{animation:none!important}.logo-button.rise{animation:none!important;opacity:1;transform:none}.live{animation:none}}
+@media(max-height:720px) and (min-width:521px){.page{gap:clamp(.45rem,1.5vh,1rem);padding-top:max(.65rem,env(safe-area-inset-top));padding-bottom:max(.65rem,env(safe-area-inset-bottom))}.logo{width:clamp(76px,7vw,105px)}.tag{font-size:clamp(1.65rem,4.5vw,3rem)}.grid{gap:.55rem}.card{padding:.65rem .8rem}}
+.thumb-failed{visibility:hidden}
+
+.embed:has(.player-fallback){display:grid;place-items:center;padding:1rem}.player-fallback{display:inline-block;text-decoration:none}

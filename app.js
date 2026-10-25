@@ -3,13 +3,15 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
 const store={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}};
-let mood='night',fxOn=!reduce;   // always start in Night with particles on
+const sstore={get:k=>{try{return sessionStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{sessionStorage.setItem(k,v)}catch{}}};   // mood + particles last for the visit only, so every new visit starts in Night with particles on
+let mood=['dusk','night','aurora'].includes(sstore.get('mood'))?sstore.get('mood'):'night';
+let fxOn=sstore.get('fxOn')===null?!reduce:sstore.get('fxOn')==='true';
 
 /* ---------- mood + particles toggles ---------- */
-function setMood(m){mood=m;document.body.dataset.mood=m;$$('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mood===m));mix()}
+function setMood(m){if(!['dusk','night','aurora'].includes(m))return;mood=m;document.body.dataset.mood=m;$$('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mood===m));sstore.set('mood',m);mix()}
 $$('.seg button').forEach(b=>b.onclick=()=>setMood(b.dataset.mood));
 const fxb=$('#fxbtn');fxb.setAttribute('aria-pressed',fxOn);
-fxb.onclick=()=>{fxOn=!fxOn;fxb.setAttribute('aria-pressed',fxOn)};
+fxb.onclick=()=>{fxOn=!fxOn;sstore.set('fxOn',fxOn);fxb.setAttribute('aria-pressed',fxOn);syncCanvas()};
 
 /* ---------- ambient sound (synthesized, off by default) ---------- */
 let AC,N,sndOn=false;
@@ -40,10 +42,10 @@ $('#snd').onclick=e=>{sndOn=!sndOn;e.currentTarget.setAttribute('aria-pressed',s
  if(sndOn){if(!AC)build();AC.resume()}
  if(AC)N.m.gain.setTargetAtTime(sndOn?level():0,AC.currentTime,.4)};
 
-setMood('night');
+setMood(mood);
 
 /* ---------- keys 1-6 ---------- */
-addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const c=$$('.card')[+e.key-1];if(c)window.open(c.href,'_blank','noopener')});
+addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey||e.shiftKey||e.repeat)return;const target=e.target;if(target?.isContentEditable||/^(INPUT|TEXTAREA|SELECT)$/.test(target?.tagName||''))return;if(!/^[1-6]$/.test(e.key))return;const c=$$('.card')[Number(e.key)-1];if(c)window.open(c.href,'_blank','noopener,noreferrer')});
 
 /* ---------- canvas: snow / fireflies / stars / shooting stars / confetti ---------- */
 const cv=$('#fx'),ctx=cv.getContext('2d');let W,H,D;
@@ -53,7 +55,9 @@ let sh=null;const B=[];
 let lw=0;
 function size(){lw=innerWidth;D=Math.min(devicePixelRatio||1,fine?2:1.5);W=cv.width=Math.round(cv.clientWidth*D);H=cv.height=Math.round(cv.clientHeight*D)}
 size();addEventListener('resize',()=>{if(innerWidth!==lw)size()});   // ignore height-only resizes from the phone's address bar
-function frame(t){requestAnimationFrame(frame);ctx.clearRect(0,0,W,H);if(document.hidden)return;
+let canvasRaf=0,lastFrame=0;
+function syncCanvas(){if((fxOn||B.length)&&!document.hidden&&!reduce&&!canvasRaf)canvasRaf=requestAnimationFrame(frame);else if((!fxOn&&!B.length||document.hidden||reduce)&&canvasRaf){cancelAnimationFrame(canvasRaf);canvasRaf=0;ctx.clearRect(0,0,W,H)}}
+function frame(t){canvasRaf=0;if(document.hidden||reduce||(!fxOn&&!B.length)){ctx.clearRect(0,0,W,H);return}if(t-lastFrame<30){canvasRaf=requestAnimationFrame(frame);return}lastFrame=t;ctx.clearRect(0,0,W,H);
  if(fxOn){const night=mood==='night';
   if(night){for(const s of S){ctx.fillStyle=`rgba(255,255,255,${.3+.5*Math.sin(t/700+s.p)**2})`;ctx.beginPath();ctx.arc(s.x*W,s.y*H,s.r*D,0,6.283);ctx.fill()}
    if(!sh&&Math.random()<.004)sh={x:Math.random()*.7,y:Math.random()*.25,l:1};
@@ -68,11 +72,12 @@ function frame(t){requestAnimationFrame(frame);ctx.clearRect(0,0,W,H);if(documen
    if(q.x<0)q.x=1;if(q.x>1)q.x=0}}
  for(let i=B.length;i--;){const b=B[i];b.vy+=.0004;b.x+=b.vx;b.y+=b.vy;b.l-=.012;if(b.l<=0){B.splice(i,1);continue}
   ctx.globalAlpha=b.l;ctx.fillStyle=b.c;ctx.fillRect(b.x*W,b.y*H,5*D,8*D)}
- ctx.globalAlpha=1}
-if(!reduce){requestAnimationFrame(frame);
- const logo=$('.logo'),cols=$$('.card').map(c=>c.style.getPropertyValue('--c'));
- logo.onclick=()=>{const r=logo.getBoundingClientRect(),x=(r.left+r.width/2)/innerWidth,y=(r.top+r.height/2)/innerHeight;
-  for(let i=0;i<90;i++){const a=Math.random()*6.283,s=.004+Math.random()*.012;B.push({x,y,vx:Math.cos(a)*s*.6,vy:Math.sin(a)*s-.006,l:1,c:cols[i%cols.length]||'#fff'})}}}
+ ctx.globalAlpha=1;if(fxOn||B.length)canvasRaf=requestAnimationFrame(frame)}
+const logo=$('.logo-button'),cols=$$('.card').map(c=>c.style.getPropertyValue('--c'));
+function burst(){if(reduce)return;const r=logo.getBoundingClientRect(),x=(r.left+r.width/2)/innerWidth,y=(r.top+r.height/2)/innerHeight;for(let i=0;i<90;i++){const a=Math.random()*6.283,s=.004+Math.random()*.012;B.push({x,y,vx:Math.cos(a)*s*.6,vy:Math.sin(a)*s-.006,l:1,c:cols[i%cols.length]||'#fff'})}syncCanvas()}
+logo.addEventListener('click',burst);
+if(!reduce)syncCanvas();
+document.addEventListener('visibilitychange',()=>{if(document.hidden){if(canvasRaf)cancelAnimationFrame(canvasRaf);canvasRaf=0;ctx.clearRect(0,0,W,H)}else syncCanvas()});
 
 /* ---------- parallax: mouse, or device tilt on phones ---------- */
 if(!reduce){
@@ -81,7 +86,8 @@ if(!reduce){
  const tick=()=>{cx+=(tx-cx)*.08;cy+=(ty-cy)*.08;
   for(const l of L)l.el.style.transform=`translate3d(${(-cx*l.dx*K).toFixed(1)}px,${(-cy*l.dy*K).toFixed(1)}px,0)`;
   raf=Math.abs(tx-cx)>.001||Math.abs(ty-cy)>.001?requestAnimationFrame(tick):0};
- const aim=(x,y)=>{tx=x;ty=y;if(!raf)raf=requestAnimationFrame(tick)};
+ const aim=(x,y)=>{tx=x;ty=y;if(!document.hidden&&!raf)raf=requestAnimationFrame(tick)};
+ document.addEventListener('visibilitychange',()=>{if(document.hidden&&raf){cancelAnimationFrame(raf);raf=0}else if(!document.hidden&&(Math.abs(tx-cx)>.001||Math.abs(ty-cy)>.001))aim(tx,ty)});
  if(fine){
   addEventListener('pointermove',e=>{aim((e.clientX/innerWidth-.5)*2,(e.clientY/innerHeight-.5)*2);
    document.body.style.setProperty('--gx',e.clientX+'px');document.body.style.setProperty('--gy',e.clientY+'px')},{passive:true});
@@ -115,7 +121,9 @@ const tw=$('#tw'),twCard=$('[data-k=twitch]'),EMBED='https://player.twitch.tv/';
 const loadTw=()=>{if(!location.hostname||!twCard)return;
  const ch=new URL(twCard.href).pathname.replace(/\//g,'');   // channel comes from your Twitch social link
  const f=document.createElement('iframe');f.src=EMBED+'?channel='+encodeURIComponent(ch)+'&parent='+location.hostname+'&muted=true&autoplay=false';
- f.title='Twitch player';f.allowFullscreen=true;tw.replaceChildren(f)};
+ f.title='Twitch player';f.loading='lazy';f.allow='autoplay; fullscreen';f.allowFullscreen=true;
+ const fallback=document.createElement('a');fallback.className='pill';fallback.href=twCard.href;fallback.target='_blank';fallback.rel='noopener noreferrer';fallback.textContent='Open Twitch if the player does not load';fallback.style.display='block';fallback.style.marginTop='.5rem';
+ f.addEventListener('error',()=>{fallback.classList.add('player-fallback');tw.replaceChildren(fallback)});tw.replaceChildren(f)};
 if(fine){const io2=new IntersectionObserver(es=>{if(es[0].isIntersecting){io2.disconnect();loadTw()}},{rootMargin:'300px'});io2.observe(tw)}
 else{const b=document.createElement('button');b.className='pill';b.textContent='Load Twitch player';b.onclick=loadTw;tw.append(b)}   // phones: embedded players make scrolling choppy, so load on tap
 
@@ -164,24 +172,24 @@ addEventListener('scroll',()=>{clearTimeout(st);   // if a drag/flick ends betwe
 /* ---------- live status + videos + clips (written by the GitHub Action) ---------- */
 const SRC=['status.json'];
 const nf=new Intl.NumberFormat('en',{notation:'compact'}),rf=new Intl.RelativeTimeFormat('en',{numeric:'auto'});
-const ago=iso=>{const d=(new Date(iso)-Date.now())/864e5,x=Math.abs(d);return x<1?'today':x<30?rf.format(Math.round(d),'day'):x<365?rf.format(Math.round(d/30),'month'):rf.format(Math.round(d/365),'year')};
-function tile(href,thumb,title,meta){const a=document.createElement('a');a.className='tile';a.href=href;a.target='_blank';a.rel='noopener noreferrer';
- const i=document.createElement('img');i.src=thumb;i.alt='';i.loading='lazy';
+const ago=iso=>{const stamp=Date.parse(iso);if(!Number.isFinite(stamp))return '';const d=(stamp-Date.now())/864e5,x=Math.abs(d);return x<1?'today':x<30?rf.format(Math.round(d),'day'):x<365?rf.format(Math.round(d/30),'month'):rf.format(Math.round(d/365),'year')};
+const safeUrl=(value,hosts)=>{try{const u=new URL(value);return u.protocol==='https:'&&hosts.includes(u.hostname)?u.href:null}catch{return null}};
+const validStatus=s=>s&&typeof s==='object'&&!Array.isArray(s)&&(!('videos'in s)||Array.isArray(s.videos))&&(!('clips'in s)||Array.isArray(s.clips))&&(!('twitch'in s)||(s.twitch&&typeof s.twitch==='object'&&typeof s.twitch.live==='boolean'));
+function tile(href,thumb,title,meta,fallback){const a=document.createElement('a');a.className='tile';a.href=href;a.target='_blank';a.rel='noopener noreferrer';
+ const i=document.createElement('img');i.src=thumb;i.alt='';i.loading='lazy';i.decoding='async';i.referrerPolicy='no-referrer';i.addEventListener('error',()=>{if(fallback&&i.src!==fallback)i.src=fallback;else{i.removeAttribute('src');i.classList.add('thumb-failed')}});
  const s=document.createElement('span');s.className='tx';const b=document.createElement('b');b.textContent=title;const m=document.createElement('small');m.textContent=meta;
  s.append(b,m);a.append(i,s);return a}
 function fill(id,items){const g=$('#g-'+id);g.querySelector('.vgrid').replaceChildren(...items);g.hidden=!items.length}
 function apply(s){
- const fresh=Date.now()/1000-(s.updated||0)<5400,t=s.twitch||{},c=twCard;
- if(c){const sm=c.querySelector('small');if(!sm.dataset.h)sm.dataset.h=sm.textContent;
-  c.querySelector('.live')?.remove();sm.textContent=sm.dataset.h;
-  if(t.live&&fresh){const b=document.createElement('span');b.className='live';b.textContent='Live';c.append(b);
-   const bits=[t.game,t.viewers!=null?t.viewers+' watching':''].filter(Boolean).join(' · ');if(bits)sm.textContent=bits}}
- const vids=(s.videos||[]).filter(v=>v.url&&v.thumb).slice(0,3);
- fill('vids',vids.map(v=>tile(v.url,v.thumb,v.title||'Watch now',v.published?ago(v.published):'')));
- fill('clips',(s.clips||[]).slice(0,6).map(k=>tile(k.url,k.thumb,k.title||'Clip',nf.format(k.views||0)+' views')))}
-async function poll(){
- const bust='?t='+Date.now();   // unique URL each time so no cache can serve an old copy
- for(const u of SRC){try{const r=await fetch(u+bust,{cache:'no-store'});if(r.ok){apply(await r.json());return}}catch{}}}
+ const now=Date.now()/1000,t=s.twitch||{},c=twCard;
+ const tu=Number.isFinite(s.twitch_updated)?s.twitch_updated:s.updated,twitchFresh=Number.isFinite(tu)&&now-tu>=0&&now-tu<5400;   // 90 min window (scheduled runs can be late); falls back to the file's own timestamp
+ if(c){const sm=c.querySelector('small');if(!sm.dataset.h)sm.dataset.h=sm.textContent;c.querySelector('.live')?.remove();sm.textContent=sm.dataset.h;
+  if(t.live&&twitchFresh){const b=document.createElement('span');b.className='live';b.textContent='Live';b.setAttribute('aria-label','Currently live on Twitch');c.append(b);const bits=[typeof t.game==='string'?t.game:'',Number.isFinite(t.viewers)?nf.format(t.viewers)+' watching':''].filter(Boolean).join(' · ');if(bits)sm.textContent=bits}}
+ const vids=(s.videos||[]).filter(v=>v&&safeUrl(v.url,['www.youtube.com','youtube.com'])&&typeof v.id==='string'&&typeof v.thumb==='string'&&safeUrl(v.thumb,['i.ytimg.com'])).slice(0,3);
+ fill('vids',vids.map(v=>tile(safeUrl(v.url,['www.youtube.com','youtube.com']),safeUrl(v.thumb,['i.ytimg.com']),typeof v.title==='string'?v.title:'Watch now',v.published?ago(v.published):'',`https://i.ytimg.com/vi/${encodeURIComponent(v.id)}/default.jpg`)));
+ const clips=(s.clips||[]).filter(k=>k&&safeUrl(k.url,['www.twitch.tv','clips.twitch.tv'])&&typeof k.thumb==='string'&&safeUrl(k.thumb,['static-cdn.jtvnw.net'])).slice(0,6);
+ fill('clips',clips.map(k=>tile(safeUrl(k.url,['www.twitch.tv','clips.twitch.tv']),safeUrl(k.thumb,['static-cdn.jtvnw.net']),typeof k.title==='string'?k.title:'Clip',nf.format(Number.isFinite(k.views)?k.views:0)+' views')))}
+async function poll(){for(const u of SRC){try{const r=await fetch(u+'?t='+Date.now(),{cache:'no-store'});if(!r.ok)continue;const data=await r.json();if(!validStatus(data))throw new Error('Invalid status.json schema');apply(data);return}catch(error){console.warn('Status refresh failed:',error)}}}
 poll();setInterval(()=>{if(!document.hidden)poll()},120000);
-addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});
+addEventListener('visibilitychange',()=>{if(!document.hidden){syncCanvas();poll()}});
 })();
