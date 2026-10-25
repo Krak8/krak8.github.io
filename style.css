@@ -117,3 +117,41 @@ transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));tra
 .vol input::-moz-range-progress{height:4px;border-radius:2px;background:#fff}
 .vol input::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#fff}
 .vol input:focus-visible{outline:3px solid #fff;outline-offset:4px;border-radius:4px}
+
+/* ---------- bottom dock: arrow + hint + hamburger menu ---------- */
+.dock{position:relative;display:flex;flex-direction:column;align-items:center;gap:.35rem;margin-top:auto}
+.dock .down{margin-top:0}
+.bar2{display:flex;align-items:center;gap:.6rem;padding:.25rem 1rem .25rem .3rem;border-radius:999px;background:#0a0e2461;border:1px solid #ffffff2b;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.hint{flex-basis:auto;margin:0;font-size:.78rem;opacity:.8;white-space:nowrap}
+.ham{display:grid;align-content:center;justify-items:center;gap:5px;width:36px;height:36px;padding:0;border:0;border-radius:50%;background:#ffffff14;cursor:pointer;transition:background .3s}
+.ham[aria-expanded=true]{background:#ffffff2e}
+.ham:hover{background:#ffffff2e}
+.ham:focus-visible{outline:3px solid #fff;outline-offset:2px}
+.panel{position:absolute;left:50%;bottom:calc(100% + .6rem);z-index:5;width:max-content;max-width:min(94vw,32rem);padding:.7rem;border-radius:22px;
+ background:#0a0e24b8;border:1px solid #ffffff2b;-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);
+ opacity:0;visibility:hidden;pointer-events:none;transform:translateX(-50%) translateY(14px) scale(.94);transform-origin:50% 100%;
+ transition:opacity .35s ease,transform .45s cubic-bezier(.2,.8,.2,1),visibility 0s .45s}
+.panel.open{opacity:1;visibility:visible;pointer-events:auto;transform:translateX(-50%);
+ transition:opacity .3s ease,transform .45s cubic-bezier(.2,.8,.2,1),visibility 0s}
+@media(hover:none){.bar2{-webkit-backdrop-filter:none;backdrop-filter:none;background:#0a0e24a8}.panel{-webkit-backdrop-filter:none;backdrop-filter:none;background:#0a0e24e6}}
+
+.sr-only{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+/* menu icon: a pine tree that turns into a close mark */
+.ham{position:relative;display:grid;place-items:center}
+.ham svg{position:absolute;width:20px;height:20px;transition:transform .45s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.ham .x{opacity:0;transform:rotate(-60deg) scale(.5)}
+.ham[aria-expanded=true] .x{opacity:1;transform:none}
+.ham[aria-expanded=true] .tree{opacity:0;transform:rotate(60deg) scale(.5)}
+/* volume icon */
+.vol{gap:.6rem}
+.vol svg{width:21px;height:21px;flex:none}
+.vol .w{transition:opacity .2s}
+.vol.mute .w{opacity:0}
+/* phones: tint the scene with an overlay instead of a filter, and keep layers on the GPU while tilt is on */
+@media(hover:none){
+ body[data-mood] .scene{filter:none}
+ .scene::after{content:"";position:absolute;inset:0;pointer-events:none;background-color:#0000;transition:background-color 1s ease}
+ body[data-mood=night] .scene::after{background-color:#050a2a99}
+ body[data-mood=aurora] .scene::after{background-color:#0508281f}
+}
+body.motion .scene img{will-change:transform;backface-visibility:hidden}

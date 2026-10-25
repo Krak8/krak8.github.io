@@ -3,13 +3,13 @@ const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
 const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
 const fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
 const store={get:k=>{try{return localStorage.getItem(k)}catch{return null}},set:(k,v)=>{try{localStorage.setItem(k,v)}catch{}}};
-let mood='aurora',fxOn=store.get('fx')!=='off'&&!reduce;
+let mood='night',fxOn=!reduce;   // always start in Night with particles on
 
 /* ---------- mood + particles toggles ---------- */
-function setMood(m){mood=m;document.body.dataset.mood=m;$$('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mood===m));store.set('mood',m);mix()}
+function setMood(m){mood=m;document.body.dataset.mood=m;$$('.seg button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.mood===m));mix()}
 $$('.seg button').forEach(b=>b.onclick=()=>setMood(b.dataset.mood));
 const fxb=$('#fxbtn');fxb.setAttribute('aria-pressed',fxOn);
-fxb.onclick=()=>{fxOn=!fxOn;fxb.setAttribute('aria-pressed',fxOn);store.set('fx',fxOn?'on':'off')};
+fxb.onclick=()=>{fxOn=!fxOn;fxb.setAttribute('aria-pressed',fxOn)};
 
 /* ---------- ambient sound (synthesized, off by default) ---------- */
 let AC,N,sndOn=false;
@@ -32,14 +32,15 @@ function mix(){if(!N)return;const t=AC.currentTime,s={dusk:[.5,0,0],night:[.35,.
  N.wind.gain.setTargetAtTime(s[0],t,1);N.cr.gain.setTargetAtTime(s[1],t,1);N.pad.gain.setTargetAtTime(s[2],t,1.5)}
 const volEl=$('#vol'),sv=store.get('vol');let vol=sv!==null&&!isNaN(+sv)?+sv:70;
 const level=()=>(vol/100)**2*1.4;   // squared curve: finer control at low volume
-volEl.value=vol;volEl.style.setProperty('--p',vol+'%');
-volEl.oninput=()=>{vol=+volEl.value;volEl.style.setProperty('--p',vol+'%');store.set('vol',vol);
+const vIcon=()=>volEl.parentElement.classList.toggle('mute',vol===0);
+volEl.value=vol;volEl.style.setProperty('--p',vol+'%');vIcon();
+volEl.oninput=()=>{vol=+volEl.value;volEl.style.setProperty('--p',vol+'%');vIcon();store.set('vol',vol);
  if(AC&&sndOn)N.m.gain.setTargetAtTime(level(),AC.currentTime,.05)};
 $('#snd').onclick=e=>{sndOn=!sndOn;e.currentTarget.setAttribute('aria-pressed',sndOn);volEl.parentElement.hidden=!sndOn;
  if(sndOn){if(!AC)build();AC.resume()}
  if(AC)N.m.gain.setTargetAtTime(sndOn?level():0,AC.currentTime,.4)};
 
-const saved=store.get('mood');setMood(['dusk','night','aurora'].includes(saved)?saved:'aurora');
+setMood('night');
 
 /* ---------- keys 1-6 ---------- */
 addEventListener('keydown',e=>{if(e.ctrlKey||e.metaKey||e.altKey)return;const c=$$('.card')[+e.key-1];if(c)window.open(c.href,'_blank','noopener')});
@@ -76,9 +77,9 @@ if(!reduce){requestAnimationFrame(frame);
 /* ---------- parallax: mouse, or device tilt on phones ---------- */
 if(!reduce){
  const L=$$('#scene img').map(el=>({el,dx:+el.dataset.dx||0,dy:+el.dataset.dy||0})).filter(l=>l.dx||l.dy);
- let tx=0,ty=0,cx=0,cy=0,raf=0;
+ let tx=0,ty=0,cx=0,cy=0,raf=0;const K=fine?200:120;   // gentler travel on phones
  const tick=()=>{cx+=(tx-cx)*.08;cy+=(ty-cy)*.08;
-  for(const l of L)l.el.style.transform=`translate3d(${(-cx*l.dx*200).toFixed(1)}px,${(-cy*l.dy*200).toFixed(1)}px,0)`;
+  for(const l of L)l.el.style.transform=`translate3d(${(-cx*l.dx*K).toFixed(1)}px,${(-cy*l.dy*K).toFixed(1)}px,0)`;
   raf=Math.abs(tx-cx)>.001||Math.abs(ty-cy)>.001?requestAnimationFrame(tick):0};
  const aim=(x,y)=>{tx=x;ty=y;if(!raf)raf=requestAnimationFrame(tick)};
  if(fine){
@@ -93,9 +94,9 @@ if(!reduce){
   const mb=$('#mot'),clamp=v=>Math.max(-1,Math.min(1,v));let on=false;
   const h=e=>{if(e.gamma!=null)aim(clamp(e.gamma/30),clamp((e.beta-45)/30))};
   mb.hidden=false;
-  mb.onclick=async()=>{if(on){removeEventListener('deviceorientation',h);on=false;aim(0,0)}
+  mb.onclick=async()=>{if(on){removeEventListener('deviceorientation',h);on=false;aim(0,0);document.body.classList.remove('motion')}
    else{try{if(typeof DeviceOrientationEvent.requestPermission==='function'&&await DeviceOrientationEvent.requestPermission()!=='granted')return}catch{return}
-    addEventListener('deviceorientation',h);on=true}
+    document.body.classList.add('motion');addEventListener('deviceorientation',h);on=true}
    mb.setAttribute('aria-pressed',on)}}}
 
 /* ---------- cycling tagline ---------- */
@@ -117,6 +118,17 @@ const loadTw=()=>{if(!location.hostname||!twCard)return;
  f.title='Twitch player';f.allowFullscreen=true;tw.replaceChildren(f)};
 if(fine){const io2=new IntersectionObserver(es=>{if(es[0].isIntersecting){io2.disconnect();loadTw()}},{rootMargin:'300px'});io2.observe(tw)}
 else{const b=document.createElement('button');b.className='pill';b.textContent='Load Twitch player';b.onclick=loadTw;tw.append(b)}   // phones: embedded players make scrolling choppy, so load on tap
+
+/* ---------- hamburger menu: opens briefly at load, then only on click ---------- */
+const menu=$('#menu'),panel=$('#panel');
+const setOpen=o=>{panel.classList.toggle('open',o);menu.setAttribute('aria-expanded',o);menu.setAttribute('aria-label',o?'Close controls':'Open controls')};
+const t1=setTimeout(()=>setOpen(true),1500),
+ t2=setTimeout(()=>{if(!panel.matches(':hover,:focus-within'))setOpen(false)},6500);
+const stop=()=>{clearTimeout(t1);clearTimeout(t2)};
+menu.onclick=()=>{stop();setOpen(!panel.classList.contains('open'))};
+panel.addEventListener('pointerdown',stop);panel.addEventListener('focusin',stop);
+addEventListener('pointerdown',e=>{if(panel.classList.contains('open')&&!panel.contains(e.target)&&!menu.contains(e.target))setOpen(false)});
+addEventListener('keydown',e=>{if(e.key==='Escape'&&panel.classList.contains('open')){setOpen(false);menu.focus()}});
 
 /* ---------- snappy paging: landing <-> #more ---------- */
 let lock=false,lastWheel=0,tS=null,st;
