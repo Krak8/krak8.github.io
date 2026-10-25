@@ -12,7 +12,7 @@
 <meta property="og:description" content="krak8's social handles!">
 <meta property="og:image" content="https://krak8.github.io/og.png"><meta name="twitter:card" content="summary_large_image">
 
-<link rel="stylesheet" href="style.css?v=13">
+<link rel="stylesheet" href="style.css?v=14">
 </head>
 <body data-mood="night">
 <div class="scene" id="scene" aria-hidden="true">
@@ -47,18 +47,10 @@
   <div class="dock rise" style="--i:10">
     <a id="down" class="down" href="#more" aria-label="Scroll down for more"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></a>
     <div class="bar2">
-      <button id="menu" class="ham" type="button" aria-expanded="false" aria-controls="panel" aria-label="Open controls"><svg class="tree" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 8 8h2L6 14h2.5L4.5 20H11v2.5h2V20h6.5L15.5 14H18l-4-6h2z"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+      
       <p class="hint">Press 1&ndash;6 to open a link</p>
     </div>
-    <div id="panel" class="panel tools" role="group" aria-label="Controls">
-    <div class="seg" role="group" aria-label="Scene mood">
-      <button data-mood="dusk" aria-pressed="false">Dusk</button><button data-mood="night" aria-pressed="true">Night</button><button data-mood="aurora" aria-pressed="false">Aurora</button>
-    </div>
-    <button id="fxbtn" class="pill" aria-pressed="true">Particles</button>
-    <button id="snd" class="pill" aria-pressed="false">Sound</button>
-    <label class="vol" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5l4.5 4v-13l-4.5 4z" fill="currentColor"/><path class="w" d="M15.5 9a4 4 0 010 6M18 6.5a8 8 0 010 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="vol" type="range" min="0" max="100" value="70" aria-label="Volume"></label>
-    <button id="mot" class="pill" aria-pressed="false" hidden>Motion</button>
-    </div>
+    
   </div>
 </main>
 <section id="more" class="more" aria-label="Twitch and videos">
@@ -68,6 +60,16 @@
     <div class="rev grp" id="g-clips" hidden><h2>Top Twitch clips</h2><div class="vgrid"></div></div>
   </div>
 </section>
-<script src="app.js?v=13" defer></script>
+<button id="menu" class="ham fab" type="button" aria-expanded="false" aria-controls="panel" aria-label="Open controls"><svg class="tree" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2 8 8h2L6 14h2.5L4.5 20H11v2.5h2V20h6.5L15.5 14H18l-4-6h2z"/></svg><svg class="x" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
+<div id="panel" class="panel tools" role="group" aria-label="Controls">
+    <div class="seg" role="group" aria-label="Scene mood">
+      <button data-mood="dusk" aria-pressed="false">Dusk</button><button data-mood="night" aria-pressed="true">Night</button><button data-mood="aurora" aria-pressed="false">Aurora</button>
+    </div>
+    <button id="fxbtn" class="pill" aria-pressed="true">Particles</button>
+    <button id="snd" class="pill" aria-pressed="false">Sound</button>
+    <label class="vol" hidden><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5v5h3.5l4.5 4v-13l-4.5 4z" fill="currentColor"/><path class="w" d="M15.5 9a4 4 0 010 6M18 6.5a8 8 0 010 11" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input id="vol" type="range" min="0" max="100" value="70" aria-label="Volume"></label>
+    <button id="mot" class="pill" aria-pressed="false" hidden>Motion</button>
+    </div>
+<script src="app.js?v=14" defer></script>
 </body>
 </html>
