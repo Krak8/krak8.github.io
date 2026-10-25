@@ -101,8 +101,19 @@ transform:perspective(700px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));tra
 .scene img{will-change:auto}
 @media(hover:hover) and (pointer:fine){.scene img{will-change:transform}}
 @media(hover:none){
- .card,.tile,.pill,.seg{-webkit-backdrop-filter:none;backdrop-filter:none;background:#0a0e24a8}
+ .card,.tile,.pill,.seg,.vol{-webkit-backdrop-filter:none;backdrop-filter:none;background:#0a0e24a8}
  .aurora{filter:none}
  body::after{display:none}
  .embed{display:grid;place-items:center}
 }
+
+/* ---------- volume slider ---------- */
+.vol{display:flex;align-items:center;padding:.4rem .9rem;border-radius:999px;background:#0a0e2461;border:1px solid #ffffff2b;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.vol[hidden]{display:none}
+.vol input{-webkit-appearance:none;appearance:none;width:104px;height:22px;margin:0;background:none;cursor:pointer;--p:70%}
+.vol input::-webkit-slider-runnable-track{height:4px;border-radius:2px;background:linear-gradient(90deg,#fff var(--p),#ffffff40 var(--p))}
+.vol input::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-6px;border-radius:50%;background:#fff;box-shadow:0 1px 4px #0006}
+.vol input::-moz-range-track{height:4px;border-radius:2px;background:#ffffff40}
+.vol input::-moz-range-progress{height:4px;border-radius:2px;background:#fff}
+.vol input::-moz-range-thumb{width:16px;height:16px;border:0;border-radius:50%;background:#fff}
+.vol input:focus-visible{outline:3px solid #fff;outline-offset:4px;border-radius:4px}

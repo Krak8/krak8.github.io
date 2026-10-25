@@ -30,9 +30,14 @@ function build(){AC=new(window.AudioContext||window.webkitAudioContext)();
  N={m,wind,cr,pad};mix()}
 function mix(){if(!N)return;const t=AC.currentTime,s={dusk:[.5,0,0],night:[.35,.035,0],aurora:[.3,0,.02]}[mood];
  N.wind.gain.setTargetAtTime(s[0],t,1);N.cr.gain.setTargetAtTime(s[1],t,1);N.pad.gain.setTargetAtTime(s[2],t,1.5)}
-$('#snd').onclick=e=>{sndOn=!sndOn;e.currentTarget.setAttribute('aria-pressed',sndOn);
+const volEl=$('#vol'),sv=store.get('vol');let vol=sv!==null&&!isNaN(+sv)?+sv:70;
+const level=()=>(vol/100)**2*1.4;   // squared curve: finer control at low volume
+volEl.value=vol;volEl.style.setProperty('--p',vol+'%');
+volEl.oninput=()=>{vol=+volEl.value;volEl.style.setProperty('--p',vol+'%');store.set('vol',vol);
+ if(AC&&sndOn)N.m.gain.setTargetAtTime(level(),AC.currentTime,.05)};
+$('#snd').onclick=e=>{sndOn=!sndOn;e.currentTarget.setAttribute('aria-pressed',sndOn);volEl.parentElement.hidden=!sndOn;
  if(sndOn){if(!AC)build();AC.resume()}
- if(AC)N.m.gain.setTargetAtTime(sndOn?.7:0,AC.currentTime,.4)};
+ if(AC)N.m.gain.setTargetAtTime(sndOn?level():0,AC.currentTime,.4)};
 
 const saved=store.get('mood');setMood(['dusk','night','aurora'].includes(saved)?saved:'aurora');
 
